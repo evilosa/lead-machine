@@ -6491,17 +6491,6 @@
 		)
 		(uuid "6836294d-3295-4846-b6b5-cfcd201f76c5")
 	)
-	(label "D"
-		(at 254 95.25 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "6e255f37-62b3-49d1-95ac-308eac6f5ac2")
-	)
 	(label "Синий"
 		(at 77.47 44.45 0)
 		(fields_autoplaced yes)

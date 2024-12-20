@@ -2,18 +2,15 @@
 #include <util/delay.h>
 #include "button.h"
 #include "lead-machine.h"
+#include "stepper-engine.h"
+#include "helpers.h"
 #include "millis.h"
-
-#ifndef _BV
-#define _BV(BIT) (1 << (BIT))
-#endif
-#define PORT_ON(port, pin) port |= (1 << pin)
-#define PORT_OFF(port, pin) port &= ~(1 << pin)
 
 struct Button reverseButton; // PD1
 struct Button feedButton;    // PD2
 
 struct LeadMachine machine;
+struct StepperEngine engine;
 
 void handleFeedPressed();
 void handleFeedReleased();
@@ -28,13 +25,6 @@ void setup(void)
   DDRD |= (1 << DDD7);
   PORTD = PORTD | _BV(PD7);
 
-  // Настраиваем порты вывода шагового двигателя
-  DDRC |= (1 << DDC5) | (1 << DDC4) | (1 << DDC3) | (1 << DDC2);
-  PORTC &= ~(1 << PC5);
-  PORTC &= ~(1 << PC4);
-  PORTC &= ~(1 << PC3);
-  PORTC &= ~(1 << PC2);
-
   // Подключаем кнопки
   feedButton = Button.new(&PIND, PD2);
   feedButton.onButtonPressed = &handleFeedPressed;
@@ -43,6 +33,9 @@ void setup(void)
   reverseButton = Button.new(&PIND, PD1);
   reverseButton.onButtonPressed = &handleReversePressed;
   reverseButton.onButtonReleased = &handleReverseReleased;
+
+  engine = StepperEngine.new();
+  engine.setup(&engine);
 
   // Инициализируем машину
   machine = LeadMachine.new();
@@ -67,29 +60,25 @@ void loop(void)
     switch (machine.state)
     {
       case IDLE:
-        PORT_OFF(PORTC, PC5);
+        // PORT_OFF(PORTC, PC5);
+        engine.stop(&engine);
         machine.updateMode(&machine);
         machine.updateTime(&machine);
         machine.updateSpeed(&machine);
+        engine.setSpeed(&engine, machine.settings.speed);
+        
+        break;
 
-        if (machine.settings.mode == AUTOMATIC) {
-          PORT_ON(PORTC, PC3);
-          _delay_ms(30);
-          PORT_OFF(PORTC, PC3);
-        } else {
-          PORT_ON(PORTC, PC2);
-          _delay_ms(30);
-          PORT_OFF(PORTC, PC2);
-        }
       
       case FEED_LEAD:
-        PORT_ON(PORTC, PC5);
+        engine.stepForward(&engine);
         if ((machine.settings.mode == AUTOMATIC) & (millis() - machine.startedAt > machine.settings.time)) {
           machine.stop(&machine);
         }
         break;
 
       case REVERSE_FEED:
+        engine.stepBackward(&engine);
         break;
 
       default:
@@ -104,7 +93,7 @@ void handleFeedPressed() {
 }
 
 void handleFeedReleased() {
-  if ((machine.settings.mode = MANUAL)) {
+  if ((machine.settings.mode == MANUAL)) {
     machine.stop(&machine);
   }
 }

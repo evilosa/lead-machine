@@ -38,6 +38,7 @@ C_SOURCES = \
 src/main.c \
 src/millis.c \
 src/button.c \
+src/stepper-engine.c \
 src/lead-machine.c \
 src/loop.c 
 

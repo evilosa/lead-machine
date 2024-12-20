@@ -8,8 +8,6 @@ int SPEED_CHANNEL = 0x01; // PIN ADC1
 unsigned int getADCValue(int channel);
 
 static void setup(struct LeadMachine *this) {
-  // DDRD &= ~(1 << DDD0);
-  // PORTD &= ~(1 << PD0);
   this->settings.mode = MANUAL;
   this->settings.speed = 1;
   this->settings.time = 1000;
