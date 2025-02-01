@@ -36,6 +36,7 @@ C_INCLUDES =  \
 # файлы программы
 C_SOURCES = \
 src/main.c \
+src/micros.c \
 src/millis.c \
 src/button.c \
 src/stepper-engine.c \

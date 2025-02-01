@@ -6,7 +6,9 @@
     "atomic.h": "c",
     "io.h": "c",
     "iom8u2.h": "c",
-    "delay_basic.h": "c"
+    "delay_basic.h": "c",
+    "interrupt.h": "c",
+    "twi.h": "c"
   },
   "C_Cpp.errorSquiggles": "disabled",
   "C_Cpp_Runner.msvcBatchPath": "",

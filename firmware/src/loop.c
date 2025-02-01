@@ -5,6 +5,7 @@
 #include "stepper-engine.h"
 #include "helpers.h"
 #include "millis.h"
+#include "micros.h"
 
 struct Button reverseButton; // PD1
 struct Button feedButton;    // PD2
@@ -20,6 +21,7 @@ void handleReverseReleased();
 void setup(void)
 {
   millis_init();
+  systickInit();
 
   // Настраиваем порты вывода
   DDRD |= (1 << DDD7);
@@ -56,6 +58,8 @@ void loop(void)
 
     feedButton.update(&feedButton);
     reverseButton.update(&reverseButton);
+    machine.updateSpeed(&machine);
+    engine.setSpeed(&engine, machine.settings.speed);
 
     switch (machine.state)
     {
@@ -64,21 +68,19 @@ void loop(void)
         engine.stop(&engine);
         machine.updateMode(&machine);
         machine.updateTime(&machine);
-        machine.updateSpeed(&machine);
-        engine.setSpeed(&engine, machine.settings.speed);
         
         break;
 
       
       case FEED_LEAD:
-        engine.stepForward(&engine);
+        engine.step(&engine);
         if ((machine.settings.mode == AUTOMATIC) & (millis() - machine.startedAt > machine.settings.time)) {
           machine.stop(&machine);
         }
         break;
 
       case REVERSE_FEED:
-        engine.stepBackward(&engine);
+        engine.step(&engine);
         break;
 
       default:

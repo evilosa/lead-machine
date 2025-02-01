@@ -4,8 +4,7 @@
 struct StepperEngine {
 	void (*setup)(struct StepperEngine *this);
   void (*setSpeed)(struct StepperEngine *this, int speed_us);
-  void (*stepForward)(struct StepperEngine *this);
-  void (*stepBackward)(struct StepperEngine *this);
+  void (*step)(struct StepperEngine *this);
 	void (*stop)(struct StepperEngine *this);
 };
 
