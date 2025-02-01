@@ -13,6 +13,9 @@ struct Button feedButton;    // PD2
 struct LeadMachine machine;
 struct StepperEngine engine;
 
+int ledOn;
+unsigned long ledOnAt = 0;
+
 void handleFeedPressed();
 void handleFeedReleased();
 void handleReversePressed();
@@ -24,8 +27,8 @@ void setup(void)
   systickInit();
 
   // Настраиваем порты вывода
-  DDRD |= (1 << DDD7);
-  PORTD = PORTD | _BV(PD7);
+  DDRC |= (1 << DDC3);
+  PORTC = PORTC | _BV(PC3);
 
   // Подключаем кнопки
   feedButton = Button.new(&PIND, PD2);
@@ -45,7 +48,9 @@ void setup(void)
 
   // Blink with LED for tests
   _delay_ms(500);
-  PORTD &= ~(1 << PD7);
+  // PORTC &= ~(1 << PC3);
+  PORT_OFF(PORTC, PC3);
+  ledOn = 0;
 }
 
 void loop(void)
@@ -54,7 +59,8 @@ void loop(void)
 
   for (;;)
   {
-    asm("NOP");
+    blinkTimerLed();
+    // asm("NOP");
 
     feedButton.update(&feedButton);
     reverseButton.update(&reverseButton);
@@ -64,7 +70,6 @@ void loop(void)
     switch (machine.state)
     {
       case IDLE:
-        // PORT_OFF(PORTC, PC5);
         engine.stop(&engine);
         machine.updateMode(&machine);
         machine.updateTime(&machine);
@@ -106,4 +111,17 @@ void handleReversePressed() {
 
 void handleReverseReleased() {
   machine.stop(&machine);
+}
+
+void blinkTimerLed() {
+  if (microsN() - 1000000 > ledOnAt) {
+    ledOnAt = microsN();
+    if (ledOn == 1) {
+      PORT_OFF(PORTC, PC3);
+      ledOn = 0;
+    } else {
+      PORT_ON(PORTC, PC3);
+      ledOn = 1;
+    }
+  }
 }

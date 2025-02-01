@@ -60,7 +60,7 @@ static void setup(struct StepperEngine *this) {
 
 static void setSpeed(struct StepperEngine *this, int measuredSpeedUs) {
   speedMs = 1 + (1024 - measuredSpeedUs ) / 100;
-  speedUs = 100 + (1024 - measuredSpeedUs);
+  speedUs = 150 + (1024 - measuredSpeedUs);
 }
 
 static void step(struct StepperEngine *this) {

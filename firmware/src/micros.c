@@ -42,7 +42,7 @@ void systickInit() {
 
     cli();
 
-    TCCR0 |= (1 << CS01); // Устанавливаем предделитель на 8 CS2=0, CS1=1, CS0=0
+    TCCR0 |= (1 << CS01) | (1 << CS00) ; // Устанавливаем предделитель на 8 CS2=0, CS1=1, CS0=0
     TIMSK |= (1 << TOIE0); // разрешаем прерывание по переполнению
 
     SREG = sregOld;
@@ -74,13 +74,13 @@ unsigned long int microsN() {
     overflowCounter = systemMonotonicOverflowCnt;
     timerCounter = TCNT0;
 
-    if (((TIFR & 0x01) != 0) && (timerCounter < 255)) {
+    if (((TIFR & TOV0) != 0) && (timerCounter < 255)) {
         overflowCounter = overflowCounter + 1;
     }
 
     SREG = srOld;
 
-    return ((overflowCounter << 8) + timerCounter) * (8L / (F_CPU / 1000000L));
+    return ((overflowCounter << 8) + timerCounter) * (64L / (F_CPU / 1000000L));
 }
 
 void delayN(unsigned long millisecs) {
